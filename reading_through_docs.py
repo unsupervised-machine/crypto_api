@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import requests
 import json
 
@@ -48,12 +50,12 @@ class ENDPOINTS():
         self.currency_list = None
         self.coin_categories = None
         self.key = None
+        self.exchanges = None
         with open('my_api_key') as f:
             self.key = f.read().strip()
             print(f'key: {self.key}')
 
     def ping(self):
-        # End Point 0: Ping, check if we can connect to server with api key
         url = "https://api.coingecko.com/api/v3/ping"
         headers = {
             "accept": "application/json",
@@ -63,9 +65,7 @@ class ENDPOINTS():
 
         print(response.text)
 
-    def fetch_coin_list(self):
-        # End point 1: Coin List, query all supported coins with id, name, and symbol
-
+    def fetch_all_coins(self):
         url = "https://api.coingecko.com/api/v3/coins/list"
         headers = {
             "accept": "application/json",
@@ -75,12 +75,12 @@ class ENDPOINTS():
         response_dict = response.json()
         return response_dict
 
-    def set_coins_list(self):
+    def set_all_coins(self):
         """
         Sets the coins list for the ENDPOINTS class
         :return:
         """
-        self.coin_list = self.fetch_coin_list()
+        self.coin_list = self.fetch_all_coins()
         return None
 
     def get_coin_price(
@@ -117,18 +117,15 @@ class ENDPOINTS():
                 url += f"%2C%20{coin_api_id}"
         url += f"&vs_currencies={currency}"
         if include_market_cap:
-            url += "&market_cap=true"
+            url += "&include_market_cap=true"
         if include_24hr_vol:
-            url += "&24hr_vol=true"
+            url += "&include_24hr_vol=true"
         if include24hr_change:
-            url += "&24hr_change=true"
+            url += "&include_24hr_change=true"
         if include_last_updated_at:
-            url += "&last_updated_at=true"
+            url += "&include_last_updated_at=true"
         if not use_default_precision:
-            url += f"&precision={precision}".format(precision=precision)
-        # Test if above functionality, else remove.
-
-        print(url)
+            url += f"&include_precision={precision}".format(precision=precision)
         headers = {
             "accept": "application/json",
             "x-cg-api-key": self.key
@@ -190,8 +187,66 @@ class ENDPOINTS():
     def set_coin_categories(self):
         self.coin_categories = self.fetch_coin_categories()
 
+    def fetch_coin_data(self, coin_id):
+        url = f"https://api.coingecko.com/api/v3/coins/{coin_id}"
+        headers = {
+            "accept": "application/json",
+            "x-cg-api-key": self.key
+        }
+        response = requests.get(url, headers=headers)
+        response_dict = response.json()
+        return response_dict
 
+    def fetch_all_exchanges(self):
+        url = f"https://api.coingecko.com/api/v3/exchanges/list"
+        headers = {
+            "accept": "application/json",
+            "x-cg-api-key": self.key
+        }
+        response = requests.get(url, headers=headers)
+        response_dict = response.json()
+        return response_dict
 
+    def set_all_exchanges(self):
+        self.exchanges = self.fetch_all_exchanges()
+
+    def fetch_coin_exchange_tickers(self, coin_id='bitcoin', exchanges='binance'):
+        url = f"https://api.coingecko.com/api/v3/coins/{coin_id}/tickers?exchange_ids={exchanges}"
+        headers = {
+            "accept": "application/json",
+            "x-cg-api-key": self.key
+        }
+        response = requests.get(url, headers=headers)
+        response_dict = response.json()
+        return response_dict
+
+    def fetch_coin_recent_data(self, coin_id='bitcoin', currency='usd', days='1'):
+        url = f"https://api.coingecko.com/api/v3/coins/{coin_id}/market_chart?vs_currency={currency}&days={days}"
+        headers = {
+            "accept": "application/json",
+            "x-cg-api-key": self.key
+        }
+        response = requests.get(url, headers=headers)
+        response_dict = response.json()
+        return response_dict
+
+    def fetch_coin_historic_data(self, coin_id='bitcoin', date='today', localization=True):
+        if localization:
+            localization = "true"
+        else:
+            localization = "false"
+
+        if date == "today":
+            date = datetime.today().strftime('%d-%m-%Y')
+
+        url = f"https://api.coingecko.com/api/v3/coins/{coin_id}/history?date={date}&localization={localization}"
+        headers = {
+            "accept": "application/json",
+            "x-cg-api-key": self.key
+        }
+        response = requests.get(url, headers=headers)
+        response_dict = response.json()
+        return response_dict
 
 
 # Testing Functions
@@ -201,7 +256,7 @@ def ping_test(endpoints_obj):
 
 
 def coin_list_test(endpoints_obj):
-    endpoints_obj.set_coins_list()
+    endpoints_obj.set_all_coins()
     print(endpoints_obj.coin_list)
 
 
@@ -244,6 +299,35 @@ def coin_categories_test(endpoints_obj):
     print(endpoints_obj.coin_categories)
 
 
+def fetch_coin_data_test(endpoints_obj):
+    coin_data = endpoints_obj.fetch_coin_data("bitcoin")
+    save_json(coin_data, 'bitcoin_data.json')
+    print(coin_data)
+
+
+def exchanges_list_test(endpoints_obj):
+    endpoints_obj.set_all_exchanges()
+    save_json(endpoints_obj.exchanges, 'exchanges.json')
+    print(endpoints_obj.exchanges)
+
+
+def fetch_coin_exchange_tickers_test(endpoints_obj):
+    coin_exchange_tickers = endpoints_obj.fetch_coin_exchange_tickers('bitcoin', 'binance')
+    save_json(coin_exchange_tickers, 'bitcoin_ticker.json')
+    print(coin_exchange_tickers)
+
+
+def fetch_coin_recent_data_test(endpoints_obj):
+    historic_data = endpoints_obj.fetch_coin_recent_data('bitcoin', 'usd', '1')
+    save_json(historic_data, 'bitcoin_recent_data.json')
+    print(historic_data)
+
+
+def fetch_coin_historic_data_test(endpoints_obj):
+    historic_data = endpoints_obj.fetch_coin_historic_data('bitcoin', '11-04-2024', True)
+    save_json(historic_data, 'bitcoin_historic_data.json')
+    print(historic_data)
+
 
 if __name__ == '__main__':
     endpoints = ENDPOINTS()
@@ -253,20 +337,11 @@ if __name__ == '__main__':
     # currency_list_test(endpoints)
     # market_data_test_ids(endpoints)
     # market_data_test_categories(endpoints)
-    coin_categories_test(endpoints)
-
-
-# if __name__ == '__main__':
-#     endpoints = ENDPOINTS()
-#     endpoints.ping()
-#     endpoints.set_coins_list()
-#     # print(endpoints.coin_list)
-#     save_json(endpoints.coin_list, 'coins.json')
-#     coins_depth = get_depth(endpoints.coin_list)
-#     # print(coins_depth)
-#     bitcoin_example = endpoints.get_coin_price('bitcoin', 'usd', True, True, True, True)
-#     print(bitcoin_example)
-#     ethereum_example = endpoints.get_coin_price('ethereum', 'usd', True, True, True, True)
-#     print(ethereum_example)
+    # coin_categories_test(endpoints)
+    # fetch_coin_data_test(endpoints)
+    # exchanges_list_test(endpoints)
+    # fetch_coin_exchange_tickers_test(endpoints)
+    fetch_coin_recent_data_test(endpoints)
+    fetch_coin_historic_data_test(endpoints)
 
 
