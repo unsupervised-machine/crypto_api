@@ -3,6 +3,8 @@ from datetime import datetime
 import requests
 import json
 
+# https://docs.coingecko.com/reference/endpoint-overview
+
 # Helper functions
 def get_depth(obj):
     """
@@ -113,7 +115,6 @@ class ENDPOINTS():
         # Test if below adds functionality, else remove.
         if len(coin_api_ids) > 1:
             for coin_api_id in coin_api_ids[1:]:
-                # TODO change from %2C%20 to %2C
                 url += f"%2C%20{coin_api_id}"
         url += f"&vs_currencies={currency}"
         if include_market_cap:
@@ -248,6 +249,16 @@ class ENDPOINTS():
         response_dict = response.json()
         return response_dict
 
+    def fetch_trending(self):
+        url = f"https://api.coingecko.com/api/v3/search/trending"
+        headers = {
+            "accept": "application/json",
+            "x-cg-api-key": self.key
+        }
+        response = requests.get(url, headers=headers)
+        response_dict = response.json()
+        return response_dict
+
 
 # Testing Functions
 
@@ -329,6 +340,12 @@ def fetch_coin_historic_data_test(endpoints_obj):
     print(historic_data)
 
 
+def fetch_trending_test(endpoints_obj):
+    trending_data = endpoints_obj.fetch_trending()
+    save_json(trending_data, 'trending_data.json')
+    print(trending_data)
+
+
 if __name__ == '__main__':
     endpoints = ENDPOINTS()
     # ping_test(endpoints)
@@ -341,7 +358,7 @@ if __name__ == '__main__':
     # fetch_coin_data_test(endpoints)
     # exchanges_list_test(endpoints)
     # fetch_coin_exchange_tickers_test(endpoints)
-    fetch_coin_recent_data_test(endpoints)
-    fetch_coin_historic_data_test(endpoints)
-
+    # fetch_coin_recent_data_test(endpoints)
+    # fetch_coin_historic_data_test(endpoints)
+    fetch_trending_test(endpoints)
 
