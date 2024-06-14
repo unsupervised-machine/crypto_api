@@ -3,7 +3,7 @@ import {MantineProvider, Table} from "@mantine/core";
 import { theme } from "./theme";
 // import DataTable from "./DataTable.tsx";
 // import {TableSort} from "./TableSort.tsx";
-import {Table_w_images} from "./Table_w_images.tsx";
+import {Table_w_images} from "./components/Table/Table_w_images.tsx";
 
 export default function App() {
   return (
