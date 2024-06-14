@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Table,
   ScrollArea,
@@ -8,16 +8,19 @@ import {
   Center,
   TextInput,
   rem,
-  keys,
 } from '@mantine/core';
 import { IconSelector, IconChevronDown, IconChevronUp, IconSearch } from '@tabler/icons-react';
 import classes from './TableSort.module.css';
 
+// Import your cryptocurrency data
+import cryptoData from '../../MOCK_DATA/table_data.json';
+
 interface RowData {
+  image: string;
+  id: string;
+  symbol: string;
   name: string;
-  email: string;
-  company: string;
-  image?: string; // Optional image URL field
+  current_price: number;
 }
 
 interface ThProps {
@@ -48,7 +51,7 @@ function Th({ children, reversed, sorted, onSort }: ThProps) {
 function filterData(data: RowData[], search: string) {
   const query = search.toLowerCase().trim();
   return data.filter((item) =>
-    keys(data[0]).some((key) => item[key].toLowerCase().includes(query))
+    Object.keys(item).some((key) => item[key as keyof RowData].toString().toLowerCase().includes(query))
   );
 }
 
@@ -65,104 +68,43 @@ function sortData(
   return filterData(
     [...data].sort((a, b) => {
       if (payload.reversed) {
-        return b[sortBy].localeCompare(a[sortBy]);
+        return b[sortBy].toString().localeCompare(a[sortBy].toString());
       }
 
-      return a[sortBy].localeCompare(b[sortBy]);
+      return a[sortBy].toString().localeCompare(b[sortBy].toString());
     }),
     payload.search
   );
 }
 
-const data = [
-  {
-    name: 'Athena Weissnat',
-    company: 'Little - Rippin',
-    email: 'Elouise.Prohaska@yahoo.com',
-    image: 'https://coin-images.coingecko.com/coins/images/1/large/bitcoin.png?1696501400', // Replace with your image URL
-  },
-  {
-    name: 'Deangelo Runolfsson',
-    company: 'Greenfelder - Krajcik',
-    email: 'Kadin_Trantow87@yahoo.com',
-  },
-  {
-    name: 'Danny Carter',
-    company: 'Kohler and Sons',
-    email: 'Marina3@hotmail.com',
-  },
-  {
-    name: 'Trace Tremblay PhD',
-    company: 'Crona, Aufderhar and Senger',
-    email: 'Antonina.Pouros@yahoo.com',
-  },
-  {
-    name: 'Derek Dibbert',
-    company: 'Gottlieb LLC',
-    email: 'Abagail29@hotmail.com',
-  },
-  {
-    name: 'Viola Bernhard',
-    company: 'Funk, Rohan and Kreiger',
-    email: 'Jamie23@hotmail.com',
-  },
-  {
-    name: 'Austin Jacobi',
-    company: 'Botsford - Corwin',
-    email: 'Genesis42@yahoo.com',
-  },
-  {
-    name: 'Hershel Mosciski',
-    company: 'Okuneva, Farrell and Kilback',
-    email: 'Idella.Stehr28@yahoo.com',
-  },
-  {
-    name: 'Mylene Ebert',
-    company: 'Kirlin and Sons',
-    email: 'Hildegard17@hotmail.com',
-  },
-  {
-    name: 'Lou Trantow',
-    company: 'Parisian - Lemke',
-    email: 'Hillard.Barrows1@hotmail.com',
-  },
-  {
-    name: 'Dariana Weimann',
-    company: 'Schowalter - Donnelly',
-    email: 'Colleen80@gmail.com',
-  },
-  {
-    name: 'Dr. Christy Herman',
-    company: 'VonRueden - Labadie',
-    email: 'Lilyan98@gmail.com',
-  },
-  {
-    name: 'Katelin Schuster',
-    company: 'Jacobson - Smitham',
-    email: 'Erich_Brekke76@gmail.com',
-  },
-  {
-    name: 'Melyna Macejkovic',
-    company: 'Schuster LLC',
-    email: 'Kylee4@yahoo.com',
-  },
-  {
-    name: 'Pinkie Rice',
-    company: 'Wolf, Trantow and Zulauf',
-    email: 'Fiona.Kutch@hotmail.com',
-  },
-  {
-    name: 'Brain Kreiger',
-    company: 'Lueilwitz Group',
-    email: 'Rico98@hotmail.com',
-  },
-];
-
 export function Table_w_images() {
+  const [data, setData] = useState<RowData[]>([]);
   const [search, setSearch] = useState('');
-  const [sortedData, setSortedData] = useState(data);
+  const [sortedData, setSortedData] = useState<RowData[]>([]);
   const [sortBy, setSortBy] = useState<keyof RowData | null>(null);
   const [reverseSortDirection, setReverseSortDirection] = useState(false);
+
+  useEffect(() => {
+  // Map full data to only include necessary fields
+  const mappedData: RowData[] = cryptoData.map((item: FullRowData) => ({
+    id: item.id,
+    symbol: item.symbol,
+    name: item.name,
+    current_price: item.current_price,
+    image: item.image,
+  }));
+
+  setData(mappedData);
+  setSortedData(mappedData); // Initially set sorted data same as original data
+}, []);
+
+  const headers = [
+    { key: 'id', label: 'ID' },
+    { key: 'symbol', label: 'Symbol' },
+    { key: 'name', label: 'Coin' },
+    { key: 'current_price', label: '$USD' },
+    { key: 'image', label: 'Image' }, // Assuming an image column
+  ];
 
   const setSorting = (field: keyof RowData) => {
     const reversed = field === sortBy ? !reverseSortDirection : false;
@@ -179,14 +121,17 @@ export function Table_w_images() {
 
   const rows = sortedData.map((row) => (
     <Table.Tr key={row.name}>
-      <Table.Td>{row.name}</Table.Td>
-      <Table.Td>{row.email}</Table.Td>
-      <Table.Td>{row.company}</Table.Td>
       <Table.Td>
         {row.image && <img src={row.image} alt={`${row.name} Image`} style={{ width: '50px', height: 'auto' }} />}
       </Table.Td>
+      <Table.Td>{row.id}</Table.Td>
+      <Table.Td>{row.symbol}</Table.Td>
+      <Table.Td>{row.name}</Table.Td>
+      <Table.Td>${row.current_price}</Table.Td>
     </Table.Tr>
   ));
+
+  const colSpanValue = headers.length;
 
   return (
     <ScrollArea>
@@ -197,33 +142,19 @@ export function Table_w_images() {
         value={search}
         onChange={handleSearchChange}
       />
-      <Table striped highlightOnHover withTableBorder withColumnBorders horizontalSpacing="md" verticalSpacing="xs" miw={700} layout="fixed" >
+      <Table striped highlightOnHover withTableBorder withColumnBorders horizontalSpacing="md" verticalSpacing="xs" miw={700} layout="fixed">
         <Table.Tbody>
           <Table.Tr>
-            <Th
-              sorted={sortBy === 'name'}
-              reversed={reverseSortDirection}
-              onSort={() => setSorting('name')}
-            >
-              Name
-            </Th>
-            <Th
-              sorted={sortBy === 'email'}
-              reversed={reverseSortDirection}
-              onSort={() => setSorting('email')}
-            >
-              Email
-            </Th>
-            <Th
-              sorted={sortBy === 'company'}
-              reversed={reverseSortDirection}
-              onSort={() => setSorting('company')}
-            >
-              Company
-            </Th>
-            <Th sorted={false} reversed={false} onSort={() => {}}>
-              Image
-            </Th>
+            {headers.map((header) => (
+              <Th
+                key={header.key}
+                sorted={sortBy === header.key}
+                reversed={reverseSortDirection}
+                onSort={() => setSorting(header.key as keyof RowData)}
+              >
+                {header.label}
+              </Th>
+            ))}
           </Table.Tr>
         </Table.Tbody>
         <Table.Tbody>
@@ -231,7 +162,7 @@ export function Table_w_images() {
             rows
           ) : (
             <Table.Tr>
-              <Table.Td colSpan={Object.keys(data[0]).length + 1}>
+              <Table.Td colSpan={colSpanValue}>
                 <Text fw={500} ta="center">
                   Nothing found
                 </Text>
