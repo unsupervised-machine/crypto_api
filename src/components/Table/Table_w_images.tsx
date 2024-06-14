@@ -99,11 +99,11 @@ export function Table_w_images() {
 }, []);
 
   const headers = [
-    { key: 'id', label: 'ID' },
-    { key: 'symbol', label: 'Symbol' },
     { key: 'name', label: 'Coin' },
+    // { key: 'symbol', label: 'Symbol' },
+    // { key: 'name', label: 'Coin' },
     { key: 'current_price', label: '$USD' },
-    { key: 'image', label: 'Image' }, // Assuming an image column
+    // { key: 'image', label: 'Image' }, // Assuming an image column
   ];
 
   const setSorting = (field: keyof RowData) => {
@@ -123,13 +123,16 @@ export function Table_w_images() {
     <Table.Tr key={row.name}>
       <Table.Td>
         {row.image && <img src={row.image} alt={`${row.name} Image`} style={{ width: '50px', height: 'auto' }} />}
+        <div className={classes.text}>
+          <div>{`${row.name} - ${row.symbol}`}</div>
+        </div>
       </Table.Td>
-      <Table.Td>{row.id}</Table.Td>
-      <Table.Td>{row.symbol}</Table.Td>
-      <Table.Td>{row.name}</Table.Td>
+      {/*<Table.Td>{`${row.name} - ${row.symbol}`}</Table.Td>*/}
+      {/*<Table.Td>{row.symbol}</Table.Td>*/}
       <Table.Td>${row.current_price}</Table.Td>
     </Table.Tr>
   ));
+
 
   const colSpanValue = headers.length;
 
