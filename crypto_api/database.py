@@ -1,3 +1,5 @@
+import json
+
 import pymongo
 from bson.objectid import ObjectId
 import os
@@ -56,7 +58,7 @@ def fetch_and_store_current_data():
 
     # Get new data from api
     market_data = client.get_cryptocurrencies(sparkline=True)
-    # print(market_data)
+    print(market_data)
 
     # Insert new data into collection
     current_only.insert_many(market_data)
@@ -69,5 +71,12 @@ def get_all_records(collection):
     return list(cursor)
 
 
+def save_to_file(file_name, data):
+    with open(file_name, 'w') as file:
+        json.dump(data, file, indent=2, default=str)
+
+
 if __name__ == "__main__":
     fetch_and_store_current_data()
+    currencies = get_all_records(current_only)
+    save_to_file("../src/MOCK_DATA.json", currencies)
