@@ -1,27 +1,30 @@
-// SignInButton.jsx
-
 import React, { useState } from 'react';
-import { Button, Modal } from '@mantine/core';
-import SignInForm from './SignInForm';
+import { Button, Modal, Group, TextInput, PasswordInput } from '@mantine/core';
 
 const SignInButton = () => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [open, setOpen] = useState(false);
 
-  const openSignInForm = () => {
-    setIsOpen(true);
-  };
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
 
-  const closeSignInForm = () => {
-    setIsOpen(false);
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    // Add your form submission logic here
   };
 
   return (
-    <>
-      <Button onClick={openSignInForm}>Sign In</Button>
-      <Modal title="Sign In" opened={isOpen} onClose={closeSignInForm}>
-        <SignInForm onClose={closeSignInForm} />
+    <div>
+      <Button onClick={handleOpen}>Sign In</Button>
+      <Modal opened={open} onClose={handleClose} title="Sign In Form">
+        <form onSubmit={handleSubmit}>
+          <Group direction="column" spacing="md">
+            <TextInput label="Email" placeholder="Email" required />
+            <PasswordInput label="Password" placeholder="Password" required />
+            <Button type="submit">Sign In</Button>
+          </Group>
+        </form>
       </Modal>
-    </>
+    </div>
   );
 };
 
