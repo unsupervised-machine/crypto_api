@@ -10,7 +10,7 @@ import {
   rem,
 } from '@mantine/core';
 import { IconSelector, IconChevronDown, IconChevronUp, IconSearch } from '@tabler/icons-react';
-import classes from './TableSort.module.css';
+import classes from './HomePageTable.module.css';
 
 // Import your cryptocurrency data
 import cryptoData from '../../MOCK_DATA/table_data.json';
@@ -86,7 +86,7 @@ function sortData(
   );
 }
 
-export function Table_w_images() {
+export function HomePageTable() {
   const [data, setData] = useState<RowData[]>([]);
   const [search, setSearch] = useState('');
   const [sortedData, setSortedData] = useState<RowData[]>([]);
