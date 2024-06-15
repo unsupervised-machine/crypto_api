@@ -3,7 +3,7 @@
 }
 
 .control {
-  width: 100%;
+  width: auto;
   padding: var(--mantine-spacing-xs) var(--mantine-spacing-md);
 
   @mixin hover {

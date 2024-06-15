@@ -21,6 +21,7 @@ interface RowData {
   symbol: string;
   name: string;
   current_price: number;
+  market_cap_rank: number;
 }
 
 interface ThProps {
@@ -67,11 +68,19 @@ function sortData(
 
   return filterData(
     [...data].sort((a, b) => {
-      if (payload.reversed) {
-        return b[sortBy].toString().localeCompare(a[sortBy].toString());
-      }
+      const valueA = a[sortBy];
+      const valueB = b[sortBy];
 
-      return a[sortBy].toString().localeCompare(b[sortBy].toString());
+      if (typeof valueA === 'number' && typeof valueB === 'number') {
+        // If both values are numbers, compare them directly
+        return payload.reversed ? valueB - valueA : valueA - valueB;
+      } else {
+        // Otherwise, treat them as strings and compare
+        if (payload.reversed) {
+          return valueB.toString().localeCompare(valueA.toString());
+        }
+        return valueA.toString().localeCompare(valueB.toString());
+      }
     }),
     payload.search
   );
@@ -92,6 +101,7 @@ export function Table_w_images() {
     name: item.name,
     current_price: item.current_price,
     image: item.image,
+    market_cap_rank: item.market_cap_rank,
   }));
 
   setData(mappedData);
@@ -99,10 +109,11 @@ export function Table_w_images() {
 }, []);
 
   const headers = [
+    { key: 'market_cap_rank', label: '#'},
     { key: 'name', label: 'Coin' },
     // { key: 'symbol', label: 'Symbol' },
     // { key: 'name', label: 'Coin' },
-    { key: 'current_price', label: '$USD' },
+    { key: 'current_price', label: 'Price' },
     // { key: 'image', label: 'Image' }, // Assuming an image column
   ];
 
@@ -121,15 +132,16 @@ export function Table_w_images() {
 
   const rows = sortedData.map((row) => (
     <Table.Tr key={row.name}>
+      <Table.Td>{row.market_cap_rank}</Table.Td>
       <Table.Td>
-        {row.image && <img src={row.image} alt={`${row.name} Image`} style={{ width: '50px', height: 'auto' }} />}
-        <div className={classes.text}>
-          <div>{`${row.name} - ${row.symbol}`}</div>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          {row.image && <img src={row.image} alt={`${row.name} Image`} style={{ width: '50px', height: 'auto', marginRight: '10px' }} />}
+          <div className={classes.text}>
+            <div><strong>{row.name}</strong> <span style={{ color: 'gray', textTransform: 'uppercase' }}>{row.symbol}</span></div>
+          </div>
         </div>
       </Table.Td>
-      {/*<Table.Td>{`${row.name} - ${row.symbol}`}</Table.Td>*/}
-      {/*<Table.Td>{row.symbol}</Table.Td>*/}
-      <Table.Td>${row.current_price}</Table.Td>
+      <Table.Td>${row.current_price.toLocaleString()}</Table.Td>
     </Table.Tr>
   ));
 
