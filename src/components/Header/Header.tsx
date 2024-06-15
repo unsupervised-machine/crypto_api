@@ -16,6 +16,10 @@ import {
   ScrollArea,
   rem,
   useMantineTheme,
+  Modal,
+  TextInput,
+  PasswordInput,
+  Paper,
 } from '@mantine/core';
 import { MantineLogo } from '@mantinex/mantine-logo';
 import { useDisclosure } from '@mantine/hooks';
@@ -66,6 +70,8 @@ const mockdata = [
 export function Header() {
   const [drawerOpened, { toggle: toggleDrawer, close: closeDrawer }] = useDisclosure(false);
   const [linksOpened, { toggle: toggleLinks }] = useDisclosure(false);
+  const [loginOpened, { open: openLogin, close: closeLogin }] = useDisclosure(false);
+  const [signupOpened, { open: openSignup, close: closeSignup }] = useDisclosure(false);
   const theme = useMantineTheme();
 
   const links = mockdata.map((item) => (
@@ -85,6 +91,29 @@ export function Header() {
       </Group>
     </UnstyledButton>
   ));
+
+  const loginForm = (
+    <Paper p="md">
+      <TextInput label="Email" placeholder="you@example.com" required />
+      <PasswordInput label="Password" placeholder="Your password" required mt="md" />
+      <Group justify="flex-end" mt="md">
+        <Button onClick={closeLogin}>Cancel</Button>
+        <Button type="submit">Log in</Button>
+      </Group>
+    </Paper>
+  );
+
+  const signupForm = (
+    <Paper p="md">
+      <TextInput label="Email" placeholder="you@example.com" required />
+      <PasswordInput label="Password" placeholder="Your password" required mt="md" />
+      <PasswordInput label="Confirm Password" placeholder="Confirm your password" required mt="md" />
+      <Group justify="flex-end" mt="md">
+        <Button onClick={closeSignup}>Cancel</Button>
+        <Button type="submit">Sign up</Button>
+      </Group>
+    </Paper>
+  );
 
   return (
     <Box pb={120}>
@@ -149,8 +178,8 @@ export function Header() {
           </Group>
 
           <Group visibleFrom="sm">
-            <Button variant="default">Log in</Button>
-            <Button>Sign up</Button>
+            <Button variant="default" onClick={openLogin}>Log in</Button>
+            <Button onClick={openSignup}>Sign up</Button>
           </Group>
 
           <Burger opened={drawerOpened} onClick={toggleDrawer} hiddenFrom="sm" />
@@ -194,11 +223,19 @@ export function Header() {
           <Divider my="sm" />
 
           <Group justify="center" grow pb="xl" px="md">
-            <Button variant="default">Log in</Button>
-            <Button>Sign up</Button>
+            <Button variant="default" onClick={openLogin}>Log in</Button>
+            <Button onClick={openSignup}>Sign up</Button>
           </Group>
         </ScrollArea>
       </Drawer>
+
+      <Modal opened={loginOpened} onClose={closeLogin} title="Log in">
+        {loginForm}
+      </Modal>
+
+      <Modal opened={signupOpened} onClose={closeSignup} title="Sign up">
+        {signupForm}
+      </Modal>
     </Box>
   );
 }

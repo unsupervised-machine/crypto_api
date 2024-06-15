@@ -12,7 +12,7 @@ export default function App() {
     <MantineProvider theme={theme}>
       <div className="App">
         <Header />
-        <h1>Welcome to My App</h1>
+        {/*<h1>Welcome to My App</h1>*/}
         {/*<SignInButton />*/}
         {/*<SignUpButton />*/}
         <Table_w_images />
