@@ -157,7 +157,7 @@ export function Table_w_images() {
         value={search}
         onChange={handleSearchChange}
       />
-      <Table striped highlightOnHover withTableBorder withColumnBorders horizontalSpacing="md" verticalSpacing="xs" miw={700} layout="fixed">
+      <Table striped highlightOnHover withTableBorder withColumnBorders horizontalSpacing="md" verticalSpacing="xs" miw={700} layout="auto">
         <Table.Tbody>
           <Table.Tr>
             {headers.map((header) => (
