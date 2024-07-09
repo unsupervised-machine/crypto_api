@@ -94,10 +94,19 @@ export function Header() {
       confirmPassword: signupConfirmPassword,
     };
 
+    // Log the userData to inspect it
+    console.log('Data to send:', userData);
+
+    // try {
+    //   const response = await axios.post('http://localhost:3000/api/signup', userData);
+    //   console.log('Sign up successful:', response.data);
+    //   // Optionally, handle success UI changes or redirect
     try {
-      const response = await axios.post('http://localhost:3000/api/signup', userData);
-      console.log('Sign up successful:', response.data);
-      // Optionally, handle success UI changes or redirect
+      const response = await axios.post('http://localhost:3000/api/signup', {
+        signupEmail,
+        signupPassword,
+        signupConfirmPassword,
+      });
     } catch (error) {
       console.error('Error signing up:', error);
       // Handle error UI changes or display error message

@@ -4,34 +4,50 @@ const cors = require('cors'); // Import CORS middleware
 const app = express();
 const port = 3000;
 
+const bodyParser = require('body-parser');
+app.use(bodyParser.json()); // Parse JSON bodies
+
 // Middleware to enable CORS
 app.use(cors());
 
 // Example mongoose connection
-mongoose.connect('mongodb://localhost:27017/myapp', { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect('mongodb://localhost:27017/crypto_api_db', { useNewUrlParser: true, useUnifiedTopology: true });
 
 // Example mongoose schema and model
 const userSchema = new mongoose.Schema({
-  email: String,
-  password: String,
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true }
 });
 
-const User = mongoose.model('User', userSchema);
+const User = mongoose.model('User', userSchema, 'users');
 
 // Example POST route for sign-up
 app.post('/api/signup', async (req, res) => {
-  try {
-    // Assuming req.body contains { email, password, confirmPassword }
-    const { email, password, confirmPassword } = req.body;
+  console.log('Request Body:', req.body); // Log the request body
 
-    // Validate password, etc. here if needed
+  try {
+    // Assuming req.body contains { signupEmail, signupPassword, signupConfirmPassword }
+    const { signupEmail, signupPassword, signupConfirmPassword } = req.body;
+
+    // Validate that email and password are present
+    if (!signupEmail || !signupPassword || !signupConfirmPassword) {
+      return res.status(400).json({ error: 'All fields are required' });
+    }
+
+    // Validate that passwords match
+    if (signupPassword !== signupConfirmPassword) {
+      return res.status(400).json({ error: 'Passwords do not match' });
+    }
 
     // Create new user
     const newUser = new User({
-      email,
-      password,
+      email: signupEmail,
+      password: signupPassword
     });
 
+
+    // Print the user object to console before saving
+    console.log('New User Object:', newUser);
     // Save user to MongoDB
     await newUser.save();
 
