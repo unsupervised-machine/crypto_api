@@ -1,5 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
 const cors = require('cors'); // Import CORS middleware
 const app = express();
 const port = 3000;
@@ -19,6 +20,22 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: true }
 });
 
+// Hash password before saving
+userSchema.pre('save', async function(next) {
+  const user = this;
+  if (!user.isModified('password')) return next();
+
+  try {
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(user.password, salt);
+    user.password = hashedPassword;
+    next();
+  } catch (error) {
+    return next(error);
+  }
+});
+
+
 const User = mongoose.model('User', userSchema, 'users');
 
 // Example POST route for sign-up
@@ -37,6 +54,11 @@ app.post('/api/signup', async (req, res) => {
     // Validate that passwords match
     if (signupPassword !== signupConfirmPassword) {
       return res.status(400).json({ error: 'Passwords do not match' });
+    }
+
+    const existingUser = await User.findOne({ email: signupEmail });
+    if (existingUser) {
+      return res.status(400).json({ error: 'Email already exists' });
     }
 
     // Create new user
