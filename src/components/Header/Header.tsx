@@ -1,3 +1,5 @@
+// src/components/Header/Header.tsx
+import React, { useState } from 'react';
 import {
   HoverCard,
   Group,
@@ -32,6 +34,7 @@ import {
   IconCoin,
   IconChevronDown,
 } from '@tabler/icons-react';
+import axios from 'axios';
 import classes from './Header.module.css';
 
 const mockdata = [
@@ -74,6 +77,36 @@ export function Header() {
   const [signupOpened, { open: openSignup, close: closeSignup }] = useDisclosure(false);
   const theme = useMantineTheme();
 
+  // State for form inputs
+  const [signupEmail, setSignupEmail] = useState('');
+  const [signupPassword, setSignupPassword] = useState('');
+  const [signupConfirmPassword, setSignupConfirmPassword] = useState('');
+
+  // Handle sign-up form submission
+  const handleSignupSubmit = async (e) => {
+    e.preventDefault();
+    // Assuming signupEmail, signupPassword, signupConfirmPassword are state variables
+
+    // Example data to send to backend
+    const userData = {
+      email: signupEmail,
+      password: signupPassword,
+      confirmPassword: signupConfirmPassword,
+    };
+
+    try {
+      const response = await axios.post('http://localhost:3000/api/signup', userData);
+      console.log('Sign up successful:', response.data);
+      // Optionally, handle success UI changes or redirect
+    } catch (error) {
+      console.error('Error signing up:', error);
+      // Handle error UI changes or display error message
+    }
+
+    // Close the sign-up modal or perform other actions after sign-up
+    closeSignup();
+  };
+
   const links = mockdata.map((item) => (
     <UnstyledButton className={classes.subLink} key={item.title}>
       <Group wrap="nowrap" align="flex-start">
@@ -104,10 +137,30 @@ export function Header() {
   );
 
   const signupForm = (
-    <Paper p="md">
-      <TextInput label="Email" placeholder="you@example.com" required />
-      <PasswordInput label="Password" placeholder="Your password" required mt="md" />
-      <PasswordInput label="Confirm Password" placeholder="Confirm your password" required mt="md" />
+    <Paper p="md" component="form" onSubmit={handleSignupSubmit}>
+      <TextInput
+        label="Email"
+        placeholder="you@example.com"
+        required
+        value={signupEmail}
+        onChange={(event) => setSignupEmail(event.currentTarget.value)}
+      />
+      <PasswordInput
+        label="Password"
+        placeholder="Your password"
+        required
+        mt="md"
+        value={signupPassword}
+        onChange={(event) => setSignupPassword(event.currentTarget.value)}
+      />
+      <PasswordInput
+        label="Confirm Password"
+        placeholder="Confirm your password"
+        required
+        mt="md"
+        value={signupConfirmPassword}
+        onChange={(event) => setSignupConfirmPassword(event.currentTarget.value)}
+      />
       <Group justify="flex-end" mt="md">
         <Button onClick={closeSignup}>Cancel</Button>
         <Button type="submit">Sign up</Button>
