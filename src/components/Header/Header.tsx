@@ -82,25 +82,21 @@ export function Header() {
   const [signupPassword, setSignupPassword] = useState('');
   const [signupConfirmPassword, setSignupConfirmPassword] = useState('');
 
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+
   // Handle sign-up form submission
   const handleSignupSubmit = async (e) => {
     e.preventDefault();
     // Assuming signupEmail, signupPassword, signupConfirmPassword are state variables
 
     // Example data to send to backend
-    const userData = {
-      email: signupEmail,
-      password: signupPassword,
-      confirmPassword: signupConfirmPassword,
-    };
+    // const userData = {
+    //   email: signupEmail,
+    //   password: signupPassword,
+    //   confirmPassword: signupConfirmPassword,
+    // };
 
-    // Log the userData to inspect it
-    console.log('Data to send:', userData);
-
-    // try {
-    //   const response = await axios.post('http://localhost:3000/api/signup', userData);
-    //   console.log('Sign up successful:', response.data);
-    //   // Optionally, handle success UI changes or redirect
     try {
       const response = await axios.post('http://localhost:3000/api/signup', {
         signupEmail,
@@ -114,6 +110,27 @@ export function Header() {
 
     // Close the sign-up modal or perform other actions after sign-up
     closeSignup();
+  };
+
+  // Handle log-in form submission
+  const handleLoginSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      const response = await axios.post('http://localhost:3000/api/signin', {
+        email: loginEmail,  // Assuming loginEmail is the state variable holding the email input
+        password: loginPassword  // Assuming loginPassword is the state variable holding the password input
+      });
+
+      console.log('Signin credentials (form):', loginEmail, loginPassword);
+      // Handle successful login, such as setting user session, redirecting, etc.
+    } catch (error) {
+      console.error('Error logging in:', error);
+      // Handle error UI changes or display error message to the user
+    }
+
+    // Close the login modal or perform other actions after login attempt
+    closeLogin();
   };
 
   const links = mockdata.map((item) => (
@@ -135,9 +152,22 @@ export function Header() {
   ));
 
   const loginForm = (
-    <Paper p="md">
-      <TextInput label="Email" placeholder="you@example.com" required />
-      <PasswordInput label="Password" placeholder="Your password" required mt="md" />
+    <Paper p="md" component="form" onSubmit={handleLoginSubmit}>
+      <TextInput
+          label="Email"
+          placeholder="you@example.com"
+          required
+          value={loginEmail}
+          onChange={(event) => setLoginEmail(event.currentTarget.value)}
+      />
+      <PasswordInput
+          label="Password"
+          placeholder="Your password"
+          required
+          mt="md"
+          value={loginPassword}
+          onChange={(event) => setLoginPassword(event.currentTarget.value)}
+      />
       <Group justify="flex-end" mt="md">
         <Button onClick={closeLogin}>Cancel</Button>
         <Button type="submit">Log in</Button>

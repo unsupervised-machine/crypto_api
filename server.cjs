@@ -40,7 +40,7 @@ const User = mongoose.model('User', userSchema, 'users');
 
 // Example POST route for sign-up
 app.post('/api/signup', async (req, res) => {
-  console.log('Request Body:', req.body); // Log the request body
+  // console.log('Request Body:', req.body); // Log the request body
 
   try {
     // Assuming req.body contains { signupEmail, signupPassword, signupConfirmPassword }
@@ -78,6 +78,34 @@ app.post('/api/signup', async (req, res) => {
   } catch (error) {
     // Handle error
     console.error('Error signing up:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Example POST route for sign-in
+app.post('/api/signin', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    console.log("Login credentials:", email, password);
+
+    // Find user by email
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Compare hashed passwords
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    // Passwords match - User authenticated
+    res.status(200).json({ message: 'User signed in successfully' });
+  } catch (error) {
+    console.error('Error signing in:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
