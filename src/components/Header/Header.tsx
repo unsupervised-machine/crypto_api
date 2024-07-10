@@ -1,4 +1,3 @@
-// src/components/Header/Header.tsx
 import React, { useState } from 'react';
 import {
   HoverCard,
@@ -85,17 +84,12 @@ export function Header() {
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
 
+  // Authentication state
+  const [authenticated, setAuthenticated] = useState(false); // Initially false, assuming not authenticated
+
   // Handle sign-up form submission
   const handleSignupSubmit = async (e) => {
     e.preventDefault();
-    // Assuming signupEmail, signupPassword, signupConfirmPassword are state variables
-
-    // Example data to send to backend
-    // const userData = {
-    //   email: signupEmail,
-    //   password: signupPassword,
-    //   confirmPassword: signupConfirmPassword,
-    // };
 
     try {
       const response = await axios.post('http://localhost:3000/api/signup', {
@@ -105,6 +99,9 @@ export function Header() {
       }, {
         withCredentials: true
       });
+
+      // Assuming successful signup sets authenticated state
+      setAuthenticated(true);
     } catch (error) {
       console.error('Error signing up:', error);
       // Handle error UI changes or display error message
@@ -120,12 +117,12 @@ export function Header() {
 
     try {
       const response = await axios.post('http://localhost:3000/api/signin', {
-        email: loginEmail,  // Assuming loginEmail is the state variable holding the email input
-        password: loginPassword  // Assuming loginPassword is the state variable holding the password input
+        email: loginEmail,
+        password: loginPassword
       });
 
-      // console.log('Signin credentials (form):', loginEmail, loginPassword);
-      // Handle successful login, such as setting user session, redirecting, etc.
+      // Assuming successful login sets authenticated state
+      setAuthenticated(true);
     } catch (error) {
       console.error('Error logging in:', error);
       // Handle error UI changes or display error message to the user
@@ -133,6 +130,11 @@ export function Header() {
 
     // Close the login modal or perform other actions after login attempt
     closeLogin();
+  };
+
+  const handleLogout = () => {
+    // Perform logout actions, such as clearing session or tokens
+    setAuthenticated(false);
   };
 
   const links = mockdata.map((item) => (
@@ -272,8 +274,14 @@ export function Header() {
           </Group>
 
           <Group visibleFrom="sm">
-            <Button variant="default" onClick={openLogin}>Log in</Button>
-            <Button onClick={openSignup}>Sign up</Button>
+            {authenticated ? (
+              <Button onClick={handleLogout}>Logout</Button>
+            ) : (
+              <>
+                <Button variant="default" onClick={openLogin}>Log in</Button>
+                <Button onClick={openSignup}>Sign up</Button>
+              </>
+            )}
           </Group>
 
           <Burger opened={drawerOpened} onClick={toggleDrawer} hiddenFrom="sm" />
@@ -317,8 +325,14 @@ export function Header() {
           <Divider my="sm" />
 
           <Group justify="center" grow pb="xl" px="md">
-            <Button variant="default" onClick={openLogin}>Log in</Button>
-            <Button onClick={openSignup}>Sign up</Button>
+            {authenticated ? (
+              <Button onClick={handleLogout}>Logout</Button>
+            ) : (
+              <>
+                <Button variant="default" onClick={openLogin}>Log in</Button>
+                <Button onClick={openSignup}>Sign up</Button>
+              </>
+            )}
           </Group>
         </ScrollArea>
       </Drawer>

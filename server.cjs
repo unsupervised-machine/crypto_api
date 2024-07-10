@@ -4,6 +4,7 @@ const bcrypt = require('bcryptjs');
 const cors = require('cors'); // Import CORS middleware
 const app = express();
 const port = 3000;
+// const port = 5173;
 const jwt = require('jsonwebtoken')
 
 const bodyParser = require('body-parser');
@@ -18,7 +19,7 @@ app.use(cors({
 app.use(cookieParser()); // Use cookie-parser middleware
 
 // Example mongoose connection
-mongoose.connect('mongodb://localhost:27017/crypto_api_db', { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect('mongodb://localhost:27017/crypto_api_db');
 
 // Example mongoose schema and model
 const userSchema = new mongoose.Schema({
@@ -109,12 +110,14 @@ app.post('/api/signin', async (req, res) => {
     }
 
      // Generate JWT for user session
-    const token = jwt.sign({id: user._id, email: user.email }, 'replace_this_key', {expiresIn: '1h'});
+    // console.log('User object:', user); // Log the user object to inspect its content
+    const token = jwt.sign({password: user.password, email: user.email }, 'replace_this_key', {expiresIn: '1h'});
+    // console.log('Generated token:', token); // Log the generated token
 
     res.cookie('token', token, {
       httpOnly: true,
-      secure: false, // Set to true in production
-      sameSite: 'lax'
+      // secure: false, // Set to true in production
+      // sameSite: 'lax'
     });
 
     console.log('Set-Cookie Header:', res.getHeaders()['set-cookie']); // Log Set-Cookie header
