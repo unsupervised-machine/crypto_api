@@ -122,7 +122,7 @@ export function Header() {
         password: loginPassword  // Assuming loginPassword is the state variable holding the password input
       });
 
-      console.log('Signin credentials (form):', loginEmail, loginPassword);
+      // console.log('Signin credentials (form):', loginEmail, loginPassword);
       // Handle successful login, such as setting user session, redirecting, etc.
     } catch (error) {
       console.error('Error logging in:', error);
