@@ -132,9 +132,27 @@ export function Header() {
     closeLogin();
   };
 
-  const handleLogout = () => {
-    // Perform logout actions, such as clearing session or tokens
-    setAuthenticated(false);
+  const handleLogout = async () => {
+    try {
+      // Call your backend API to clear session (optional, if needed)
+      const response = await fetch('/api/logout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        console.log('Logged out successfully');
+      } else {
+        console.error('Logout failed');
+      }
+
+      // Perform client-side logout actions
+      setAuthenticated(false); // Example state update for authentication status
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
   };
 
   const links = mockdata.map((item) => (

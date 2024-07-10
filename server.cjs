@@ -135,6 +135,11 @@ app.post('/api/signin', async (req, res) => {
   }
 });
 
+app.post('/api/logout', (req, res) => {
+  res.clearCookie('token', { path: '/' }); // Clear the session cookie named 'token'
+  res.status(200).json({ message: 'Logged out successfully' });
+});
+
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);
 });
