@@ -102,6 +102,8 @@ export function Header() {
         signupEmail,
         signupPassword,
         signupConfirmPassword,
+      }, {
+        withCredentials: true
       });
     } catch (error) {
       console.error('Error signing up:', error);

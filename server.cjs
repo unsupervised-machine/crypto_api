@@ -4,12 +4,18 @@ const bcrypt = require('bcryptjs');
 const cors = require('cors'); // Import CORS middleware
 const app = express();
 const port = 3000;
+const jwt = require('jsonwebtoken')
 
 const bodyParser = require('body-parser');
-app.use(bodyParser.json()); // Parse JSON bodies
+const cookieParser = require('cookie-parser'); // Import cookie-parser
 
-// Middleware to enable CORS
-app.use(cors());
+
+app.use(bodyParser.json());
+app.use(cors({
+  origin: 'http://localhost:5173', // Adjust this to match your frontend's URL
+  credentials: true // Allow credentials (cookies) to be sent
+}));
+app.use(cookieParser()); // Use cookie-parser middleware
 
 // Example mongoose connection
 mongoose.connect('mongodb://localhost:27017/crypto_api_db', { useNewUrlParser: true, useUnifiedTopology: true });
@@ -82,7 +88,7 @@ app.post('/api/signup', async (req, res) => {
   }
 });
 
-// Example POST route for sign-in
+// POST route for sign-in
 app.post('/api/signin', async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -102,8 +108,20 @@ app.post('/api/signin', async (req, res) => {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
+     // Generate JWT for user session
+    const token = jwt.sign({id: user._id, email: user.email }, 'replace_this_key', {expiresIn: '1h'});
+
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: false, // Set to true in production
+      sameSite: 'lax'
+    });
+
+    console.log('Set-Cookie Header:', res.getHeaders()['set-cookie']); // Log Set-Cookie header
+
     // Passwords match - User authenticated
     res.status(200).json({ message: 'User signed in successfully' });
+
   } catch (error) {
     console.error('Error signing in:', error);
     res.status(500).json({ error: 'Internal server error' });
