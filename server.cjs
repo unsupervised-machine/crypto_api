@@ -24,7 +24,9 @@ mongoose.connect('mongodb://localhost:27017/crypto_api_db');
 // Example mongoose schema and model
 const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
-  password: { type: String, required: true }
+  password: { type: String, required: true },
+  created_at: { type: Date, default: Date.now },
+  updated_at: { type: Date, default: Date.now }
 });
 
 // Hash password before saving
@@ -71,7 +73,9 @@ app.post('/api/signup', async (req, res) => {
     // Create new user
     const newUser = new User({
       email: signupEmail,
-      password: signupPassword
+      password: signupPassword,
+      created_at: new Date(),
+      updated_at: new Date()
     });
 
 
