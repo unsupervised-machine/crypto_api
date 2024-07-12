@@ -1,5 +1,6 @@
 import pandas as pd
 import streamlit as st
+import streamlit_authenticator as st_auth
 import os
 import json
 
