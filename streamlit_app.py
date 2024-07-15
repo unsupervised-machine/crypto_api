@@ -1,8 +1,10 @@
 import pandas as pd
 import streamlit as st
-import streamlit_authenticator as st_auth
+# import streamlit_authenticator as st_auth
 import os
 import json
+
+
 
 MOCK_DATA = 'data/MOCK_DATA.json'
 
@@ -13,8 +15,14 @@ st.set_page_config(page_title="crypto_api", layout="wide")
 st.title('My Cryptocurrency app')
 
 
-st_name = st.sidebar.text_input("Enter your name", 'John')
+# -- User Auth -- #
 
+
+
+
+
+
+st_name = st.sidebar.text_input("Enter your name", 'John')
 # st.write(f'Hello {st_name}!')
 
 st.write("Hello", st_name, '!')

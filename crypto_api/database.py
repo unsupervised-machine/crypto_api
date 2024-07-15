@@ -34,6 +34,12 @@ favorites = db["favorites"]
 cg_client = api_client.CoinGeckoClient()
 
 
+# -- Helper Funtions -- #
+def get_all_records(collection):
+    cursor = collection.find({})
+    return list(cursor)
+
+
 # -- Users -- #
 def insert_user(email, first_name, last_name, username, password):
     try:
@@ -65,6 +71,20 @@ def insert_user(email, first_name, last_name, username, password):
         return False
     finally:
         db_client.close()
+
+
+def get_all_users():
+    """Returns a dict of all users"""
+    res = get_all_records(collection=users)
+    return res
+
+
+def get_user(username):
+    """If not found, returns None"""
+    return users.find_one({"username": username})
+
+
+
 
 
 # -- Cryptocurrencies -- #
@@ -103,9 +123,7 @@ def fetch_and_store_current_data():
 # schedule.every(5).minutes.do(fetch_and_store_current_data)
 
 
-def get_all_records(collection):
-    cursor = collection.find({})
-    return list(cursor)
+
 
 
 def save_to_file(file_name, data):
@@ -125,6 +143,19 @@ def insert_mock_user():
     insert_user("taran123@gmail.com", "Taran", "Lau", 'taran50', "password123")
 
 
+def test_get_all_users():
+    test = get_all_users()
+    print(test)
+
+
+def test_get_user():
+    username = "taran50"
+    user = get_user(username)
+    print(user)
+
+
 if __name__ == "__main__":
     # create_mock_data()
-    insert_mock_user()
+    # insert_mock_user()
+    # test_get_all_users()
+    test_get_user()
