@@ -1,5 +1,7 @@
 import json
 from datetime import datetime
+from passlib.context import CryptContext
+
 
 import pymongo
 from bson.objectid import ObjectId
@@ -7,6 +9,10 @@ import os
 from crypto_api import api_client
 
 from dotenv import load_dotenv
+
+
+ALGORITHM = "HS256"
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 current_dir = os.path.dirname(__file__)
 dotenv_path = os.path.join(current_dir, '..', 'env', '.env')
@@ -40,17 +46,29 @@ def get_all_records(collection):
     return list(cursor)
 
 
+# -- Passwords and Hashing -- #
+def get_password_hash(password):
+    return pwd_context.hash(password)
+
+
+def verify_password(plain_password, hashed_password):
+    return pwd_context.verify(plain_password, hashed_password)
+
+
 # -- Users -- #
 def insert_user(email, first_name, last_name, username, password):
     try:
         # Create the document to insert
+        hashed_password = get_password_hash(password)
         create_user_timestamp = datetime.now()
+        disabled_status = False
         user_data = {
             "email": email,
             "first_name": first_name,
             "last_name": last_name,
             "username": username,
-            "password": password,
+            "hashed_password": hashed_password,
+            "disabled": disabled_status,
             "created_at": create_user_timestamp,
             "updated_at": create_user_timestamp,
         }
@@ -140,7 +158,7 @@ def create_mock_data():
 
 def insert_mock_user():
     # email, first_name, last_name, username, password
-    insert_user("taran123@gmail.com", "Taran", "Lau", 'taran50', "password123")
+    insert_user("taran123@gmail.com", "Taran", "Lau", 'taran50', "123")
 
 
 def test_get_all_users():
@@ -154,8 +172,29 @@ def test_get_user():
     print(user)
 
 
+def test_password_hash():
+    password = "123"
+    hashed_password = get_password_hash(password)
+    print(password)
+    print(hashed_password)
+
+    is_correct = verify_password(password, hashed_password)
+    print("is correct ", is_correct)
+
+
+def test_password_hash_2():
+    print("entering 2nd test_password_hash_2")
+    password = "123"
+    hashed_password = "$2b$12$C9CRkEpVv1TW4Ym8ZHR3ReBxZSW6u8Fx.1U0cdnNxhtGEf9OdMIx2"
+    is_correct = verify_password(password, hashed_password)
+    print("is correct ", is_correct)
+
+
 if __name__ == "__main__":
     # create_mock_data()
-    # insert_mock_user()
+    insert_mock_user()
     # test_get_all_users()
-    test_get_user()
+    # test_get_user()
+    # test_password_hash()
+    # test_password_hash_2()
+

@@ -5,20 +5,22 @@ from datetime import datetime, timedelta
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 
+from crypto_api.database import get_user
+
 SECRET_KEY = "123secretkey"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 # fake_db
-db = {
-    "tim": {
-        "username": "tim",
-        "full_name": "Tim Lau",
-        "email": "Tim@gmail.com",
-        "hashed_password": "$2b$12$jNs9VEELX9MxVTKXmVvsTuSzrnXAi7EbrQo675SaWBUxqW90grLs6",
-        "disabled": False,
-    }
-}
+# db = {
+#     "tim": {
+#         "username": "tim",
+#         "full_name": "Tim Lau",
+#         "email": "Tim@gmail.com",
+#         "hashed_password": "$2b$12$jNs9VEELX9MxVTKXmVvsTuSzrnXAi7EbrQo675SaWBUxqW90grLs6",
+#         "disabled": False,
+#     }
+# }
 
 
 class Token(BaseModel):
@@ -33,7 +35,7 @@ class TokenData(BaseModel):
 class User(BaseModel):
     username: str
     email: str or None = None
-    full_name: str or None = None
+    # full_name: str or None = None
     disabled: bool or None = None
 
 
@@ -59,17 +61,17 @@ def get_password_hash(password):
     return pwd_context.hash(password)
 
 
-def get_user(db, username: str):
-    if username in db:
-        user_data = db[username]
-        return UserInDB(**user_data)
+# def get_user(db, username: str):
+#     if username in db:
+#         user_data = db[username]
+#         return UserInDB(**user_data)
 
 
-def authenticate_user(db, username: str, password: str):
-    user = get_user(db, username)
+def authenticate_user(username: str, password: str):
+    user = get_user(username)
     if not user:
         return False
-    if not verify_password(password, user.hashed_password):
+    if not verify_password(password, user['hashed_password']):
         return False
 
     return user
@@ -88,13 +90,15 @@ def create_access_token(data: dict, expires_delta: timedelta or None = None):
 
 
 async def get_current_user(token: str = Depends(oath2_scheme)):
+    print("Enter get_current_user: ")
     credential_exception = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                                          detail="Could not validate credentials",
                                          headers={"WWW-Authenticate": "Bearer"}
                                          )
+
     try:
         payload = jwt.decode(token, key=SECRET_KEY, algorithms=[ALGORITHM])
-        username:str = payload.get("sub")
+        username: str = payload.get("sub")
         if username is None:
             raise credential_exception
 
@@ -103,7 +107,7 @@ async def get_current_user(token: str = Depends(oath2_scheme)):
     except JWTError:
         raise credential_exception
 
-    user = get_user(db, username=token_data.username)
+    user = get_user(username=token_data.username)
     if user is None:
         raise credential_exception
 
@@ -119,7 +123,7 @@ async def get_current_active_user(current_user: UserInDB = Depends(get_current_u
 
 @app.post("/token", response_model=Token)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
-    user = authenticate_user(db, form_data.username, form_data.password)
+    user = authenticate_user(form_data.username, form_data.password)
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                             detail="Incorrect username or password",
@@ -127,9 +131,10 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
                             )
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-        data={"sub": user.username},
+        data={"sub": user['username']},
         expires_delta=access_token_expires
     )
+    print("access_token: ", access_token)
 
     return {"access_token": access_token, "token_type": "bearer"}
 
@@ -143,3 +148,13 @@ async def read_users_me(current_user: User = Depends(get_current_active_user)):
 async def read_own_items(current_user: User = Depends(get_current_active_user)):
     return [{"item_id": 1, "owner": current_user}]
 
+
+
+# if __name__ == "__main__":
+#     data = get_user("tim")
+#     print(data)
+#
+#     data = get_user("taran50")
+#     print(data)
+#     if data['email'] == "taran123@gmail.com":
+#         print("correct email")
