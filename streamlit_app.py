@@ -11,38 +11,78 @@ st.set_page_config(page_title="crypto_api", layout="wide")
 # Streamlit login form
 st.title("Login")
 
-username = st.sidebar.text_input("Username")
-password = st.sidebar.text_input("Password", type="password")
 
-if st.sidebar.button("Login"):
-    response = requests.post("http://localhost:8000/token", data={"username": username, "password": password})
-    if response.status_code == 200:
-        token = response.json().get("access_token")
-        st.session_state.token = token
-        st.success("Logged in successfully!")
-    else:
-        st.error("Login failed")
 
-if "token" in st.session_state:
-    st.markdown("### Logged in")
 
-    headers = {"Authorization": f"Bearer {st.session_state.token}"}
-    response = requests.get("http://localhost:8000/users/me/", headers=headers)
+# if "token" in st.session_state:
+    # st.markdown("### Logged in")
+    #
+    # headers = {"Authorization": f"Bearer {st.session_state.token}"}
+    # response = requests.get("http://localhost:8000/users/me/", headers=headers)
 
-    if response.status_code == 200:
-        data = response.json()
-        st.write(data)
-    else:
-        st.error("Unauthorized access")
+    # if response.status_code == 200:
+    #     data = response.json()
+    #     st.write(data)
+    # else:
+    #     st.error("Unauthorized access")
+    #
+    # if st.sidebar.button("Logout"):
+    #     del st.session_state.token
+    #     st.rerun()
+        # st.success("Logged out successfully!")
 
-    if st.sidebar.button("Logout"):
-        del st.session_state.token
-        st.success("Logged out successfully!")
 
-else:
-    st.markdown("### Not logged in")
 
-    st.sidebar.button("Sign up")
+with st.popover("Sign In"):
+    with st.form("Signin Form", clear_on_submit=True):
+        username = st.text_input("username")
+        plain_password = st.text_input("Password")
+        submitted = st.form_submit_button("Submit")
+
+        response = requests.post("http://localhost:8000/token", data={"username": username, "password": plain_password})
+
+        if submitted:
+            if response.status_code == 200:
+                token = response.json().get("access_token")
+                st.session_state.token = token
+                if st.session_state.token:
+                    st.success("Logged in successfully!")
+            else:
+                st.error("Login failed")
+
+
+with st.popover("Sign Up"):
+    with st.form("Signup Form", clear_on_submit=True):
+        email = st.text_input("Email")
+        first_name = st.text_input("First Name")
+        last_name = st.text_input("Last Name")
+        username = st.text_input("Username")
+        plain_password = st.text_input("Password")
+        submitted = st.form_submit_button("Submit")
+
+        response = requests.post("http://localhost:8000/signup", data={"email": email, "first_name": first_name,
+                                                                       "last_name": last_name,
+                                                                       "username": username,
+                                                                       "plain_password": plain_password,
+                                                                       })
+
+        if submitted:
+            if response.status_code == 200:
+                st.success("Successfully registered.")
+
+                response = requests.post("http://localhost:8000/token",
+                                         data={"username": username, "password": plain_password})
+                if submitted:
+                    if response.status_code == 200:
+                        token = response.json().get("access_token")
+                        st.session_state.token = token
+                        if st.session_state.token:
+                            st.success("Logged in successfully!")
+                    else:
+                        st.error("Login failed")
+
+            else:
+                st.error("Registration failed")
 
 
 # -- UNCOMMENT EVERYTHING BELOW WHEN DONE TESTING -- ##

@@ -84,11 +84,17 @@ def insert_user(email, first_name, last_name, username, password):
             print("Insert failed.")
             return False
 
+    except pymongo.errors.DuplicateKeyError as e:
+        # Handle duplicate key error specifically
+        print(f"Duplicate key error: {e}")
+        return "Duplicate key error"
     except pymongo.errors.PyMongoError as e:
+        # Handle other MongoDB errors
         print(f"An error occurred: {e}")
-        return False
-    finally:
-        db_client.close()
+        return "Database error"
+    # finally:
+    #     # Close client if it's a local client
+    #     db_client.close()
 
 
 def get_all_users():

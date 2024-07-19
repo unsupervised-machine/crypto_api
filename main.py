@@ -1,11 +1,12 @@
-from fastapi import Depends, FastAPI, HTTPException, status
+from typing import Annotated
+from fastapi import Depends, FastAPI, HTTPException, status, Form
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from pydantic import BaseModel
 from datetime import datetime, timedelta
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 
-from crypto_api.database import get_user
+from crypto_api.database import get_user, insert_user
 
 SECRET_KEY = "123secretkey"
 ALGORITHM = "HS256"
@@ -39,6 +40,11 @@ class User(BaseModel):
     disabled: bool or None = None
 
 
+class SignUpResponse(BaseModel):
+    success: bool
+    message: str
+
+
 class UserInDB(User):
     hashed_password: str
 
@@ -59,12 +65,6 @@ def verify_password(plain_password, hashed_password):
 
 def get_password_hash(password):
     return pwd_context.hash(password)
-
-
-# def get_user(db, username: str):
-#     if username in db:
-#         user_data = db[username]
-#         return UserInDB(**user_data)
 
 
 def get_user_db(username: str):
@@ -143,6 +143,39 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     return {"access_token": access_token, "token_type": "bearer"}
 
 
+@app.post("/signup", response_model=SignUpResponse)
+async def sign_up(
+        email: Annotated[str, Form()],
+        first_name: Annotated[str, Form()],
+        last_name: Annotated[str, Form()],
+        username: Annotated[str, Form()],
+        plain_password: Annotated[str, Form()],
+):
+    try:
+        result = insert_user(email, first_name, last_name, username, plain_password)
+        if result == True:
+            return SignUpResponse(success=True, message="User successfully signed registered.")
+        elif result == "Duplicate key error":
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Email or username already registered."
+            )
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="User registration failed due to a database error."
+            )
+    except HTTPException as e:
+        # Re-raise HTTPException to return the correct status code
+        raise e
+    except Exception as e:
+        # Handle unexpected errors
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"An unexpected error occurred: {str(e)}"
+        )
+
+
 @app.get("/users/me/", response_model=User)
 # make sure to sign in via the "Authorize" button first
 async def read_users_me(current_user: User = Depends(get_current_active_user)):
@@ -152,7 +185,6 @@ async def read_users_me(current_user: User = Depends(get_current_active_user)):
 @app.get("/users/me/items")
 async def read_own_items(current_user: User = Depends(get_current_active_user)):
     return [{"item_id": 1, "owner": current_user}]
-
 
 
 if __name__ == "__main__":
