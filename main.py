@@ -67,11 +67,16 @@ def get_password_hash(password):
 #         return UserInDB(**user_data)
 
 
+def get_user_db(username: str):
+    user_data = get_user(username)
+    return UserInDB(**user_data)
+
+
 def authenticate_user(username: str, password: str):
-    user = get_user(username)
+    user = get_user_db(username)
     if not user:
         return False
-    if not verify_password(password, user['hashed_password']):
+    if not verify_password(password, user.hashed_password):
         return False
 
     return user
@@ -90,7 +95,6 @@ def create_access_token(data: dict, expires_delta: timedelta or None = None):
 
 
 async def get_current_user(token: str = Depends(oath2_scheme)):
-    print("Enter get_current_user: ")
     credential_exception = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                                          detail="Could not validate credentials",
                                          headers={"WWW-Authenticate": "Bearer"}
@@ -107,7 +111,7 @@ async def get_current_user(token: str = Depends(oath2_scheme)):
     except JWTError:
         raise credential_exception
 
-    user = get_user(username=token_data.username)
+    user = get_user_db(username=token_data.username)
     if user is None:
         raise credential_exception
 
@@ -131,7 +135,7 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
                             )
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-        data={"sub": user['username']},
+        data={"sub": user.username},
         expires_delta=access_token_expires
     )
     print("access_token: ", access_token)
@@ -140,6 +144,7 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
 
 
 @app.get("/users/me/", response_model=User)
+# make sure to sign in via the "Authorize" button first
 async def read_users_me(current_user: User = Depends(get_current_active_user)):
     return current_user
 
@@ -150,11 +155,6 @@ async def read_own_items(current_user: User = Depends(get_current_active_user)):
 
 
 
-# if __name__ == "__main__":
-#     data = get_user("tim")
-#     print(data)
-#
-#     data = get_user("taran50")
-#     print(data)
-#     if data['email'] == "taran123@gmail.com":
-#         print("correct email")
+if __name__ == "__main__":
+    test = get_user_db("taran50")
+    print(test)
