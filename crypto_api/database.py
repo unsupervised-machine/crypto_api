@@ -129,6 +129,16 @@ def insert_price_history(data):
     return price_history.insert_one(data)
 
 
+# -- Favorites -- #
+def insert_to_portfolio(username: str, add_to_favorites: list):
+    portfolios.update_one(
+        { "_id": username },
+        { "$push": { "favorites": { "$each": add_to_favorites}  } },
+        upsert=True
+    )
+
+
+# -- Refreshing -- #
 def fetch_and_store_current_data():
     """
     replaces data in current_only collection in database with fresh data
@@ -145,9 +155,6 @@ def fetch_and_store_current_data():
     current_only.insert_many(market_data)
 
 # schedule.every(5).minutes.do(fetch_and_store_current_data)
-
-
-
 
 
 def save_to_file(file_name, data):
@@ -196,11 +203,18 @@ def test_password_hash_2():
     print("is correct ", is_correct)
 
 
+def test_insert_to_portfolio():
+    username = "taran50"
+    add_to_favorites = ['example 1', 'example 2']
+    insert_to_portfolio(username, add_to_favorites)
+
+
 if __name__ == "__main__":
     # create_mock_data()
-    insert_mock_user()
+    # insert_mock_user()
     # test_get_all_users()
     # test_get_user()
     # test_password_hash()
     # test_password_hash_2()
+    test_insert_to_portfolio()
 
