@@ -32,7 +32,6 @@ st.title("Login")
         # st.success("Logged out successfully!")
 
 
-
 with st.popover("Sign In"):
     with st.form("Signin Form", clear_on_submit=True):
         username = st.text_input("username")
@@ -45,8 +44,7 @@ with st.popover("Sign In"):
             if response.status_code == 200:
                 token = response.json().get("access_token")
                 st.session_state.token = token
-                if st.session_state.token:
-                    st.success("Logged in successfully!")
+                st.success("Logged in successfully!")
             else:
                 st.error("Login failed")
 
@@ -60,11 +58,14 @@ with st.popover("Sign Up"):
         plain_password = st.text_input("Password")
         submitted = st.form_submit_button("Submit")
 
-        response = requests.post("http://localhost:8000/signup", data={"email": email, "first_name": first_name,
-                                                                       "last_name": last_name,
-                                                                       "username": username,
-                                                                       "plain_password": plain_password,
-                                                                       })
+        response = requests.post(url="http://localhost:8000/signup",
+                                 data={"email": email,
+                                       "first_name": first_name,
+                                       "last_name": last_name,
+                                       "username": username,
+                                       "plain_password": plain_password,
+                                       }
+                                 )
 
         if submitted:
             if response.status_code == 200:
@@ -83,6 +84,16 @@ with st.popover("Sign Up"):
 
             else:
                 st.error("Registration failed")
+
+if "token" in st.session_state:
+    with st.popover("Log out"):
+        with st.form("Logout Form"):
+            submitted = st.form_submit_button("Log out")
+
+            if submitted:
+                st.success("Logged out successfully!")
+                del st.session_state.token
+                st.rerun()
 
 
 # -- UNCOMMENT EVERYTHING BELOW WHEN DONE TESTING -- ##
