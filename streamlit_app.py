@@ -157,6 +157,9 @@ columns_to_keep = [
 # Only keep columns we care about
 df = df[columns_to_keep]
 
+# Sort by favorites and market_cap_rank for default
+df = df.sort_values(by=['favorite', 'market_cap_rank'], ascending=[False, True])
+
 # Only allow edits for favorite column, used int 'disabled' for data_editor
 columns_to_edit = ['favorite']
 columns_all = df.columns.to_list()
