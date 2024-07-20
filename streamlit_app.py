@@ -157,7 +157,7 @@ columns_to_edit = ['favorite']
 columns_all = df.columns.to_list()
 columns_not_to_edit = [col for col in columns_all if col not in columns_to_edit]
 
-if st.button("Save Favorites"):
+if st.button("Save Selected Favorites"):
     st.rerun()
 
 edited_df = st.data_editor(
@@ -168,7 +168,7 @@ edited_df = st.data_editor(
     disabled=columns_not_to_edit,
     column_config={
         "favorite": st.column_config.CheckboxColumn(
-            "Favorite?",
+            "Select Favorites",
             help="Select your **favorite** currencies.",
             default=False
         ),
@@ -202,8 +202,6 @@ edited_df = st.data_editor(
 updated_favorites = edited_df.loc[edited_df['favorite'] == 1, 'id']
 updated_favorites_list = updated_favorites.squeeze().tolist()
 
-st.write(type(updated_favorites_list))
-st.write(updated_favorites_list)
 
 
 if "token" in st.session_state and st.session_state.username:
