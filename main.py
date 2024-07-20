@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 
-from crypto_api.database import get_user, insert_user, get_user_portfolio
+from crypto_api.database import get_user, insert_user, get_user_portfolio, update_portfolio
 
 SECRET_KEY = "123secretkey"
 ALGORITHM = "HS256"
@@ -180,6 +180,14 @@ async def sign_up(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"An unexpected error occurred: {str(e)}"
         )
+
+
+@app.post("/users/me/favorites/add")
+async def set_favorites(
+        favorites: Annotated[list, Form()],
+        current_user: User = Depends(get_current_active_user),
+                        ):
+    update_portfolio(username=current_user.username, set_favorites=favorites)
 
 
 @app.get("/users/me/", response_model=User)

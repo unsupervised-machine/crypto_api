@@ -102,14 +102,7 @@ if "token" in st.session_state:
                 st.rerun()
 
 
-# if user is logged in get their favorites portfolio
-if "token" in st.session_state and st.session_state.username:
-    st.write(st.session_state.token)
-    response = requests.get("http://localhost:8000/users/me/favorites",
-                            data={"username": username},
-                            headers = {"Authorization": f"Bearer {st.session_state.token}"})
-    data = response.json()
-    st.write(data)
+
 
 # -- Crypto portion of app -- #
 st.title('My Cryptocurrency app')
@@ -134,6 +127,16 @@ df['sparkline_in_7d'] = df['sparkline_in_7d'].apply(dict_to_list)
 # Add column of false values for favorite checkboxes
 df.insert(0, 'favorite', False)
 
+# if user is logged in set favorites to match their portfolio
+if "token" in st.session_state and st.session_state.username:
+    # st.write(st.session_state.token)
+    response = requests.get("http://localhost:8000/users/me/favorites",
+                            data={"username": username},
+                            headers={"Authorization": f"Bearer {st.session_state.token}"})
+    favorites = response.json()
+    # st.write(favorites)
+    df['favorite'] = df['id'].apply(lambda x: 1 if x in favorites else 0)
+
 # data_dict = data_dict.iloc[:, 1:] # Drop db _id column
 columns_to_keep = [
     'favorite',
@@ -154,8 +157,10 @@ columns_to_edit = ['favorite']
 columns_all = df.columns.to_list()
 columns_not_to_edit = [col for col in columns_all if col not in columns_to_edit]
 
+if st.button("Save Favorites"):
+    st.rerun()
 
-st.data_editor(
+edited_df = st.data_editor(
     data=df,
     width=None,
     use_container_width=False,
@@ -190,5 +195,21 @@ st.data_editor(
         ),
 
     },
-    hide_index=True
+    hide_index=True,
+    # on_change=st.rerun()
 )
+
+updated_favorites = edited_df.loc[edited_df['favorite'] == 1, 'id']
+updated_favorites_list = updated_favorites.squeeze().tolist()
+
+st.write(type(updated_favorites_list))
+st.write(updated_favorites_list)
+
+
+if "token" in st.session_state and st.session_state.username:
+    # st.write(st.session_state.token)
+    response = requests.post("http://localhost:8000/users/me/favorites/add",
+                            data={"favorites": updated_favorites_list, "username": username, },
+                            # data={"favorites": ['example1', 'example2'], "username": username, },
+                            headers={"Authorization": f"Bearer {st.session_state.token}"})
+

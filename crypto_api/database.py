@@ -130,10 +130,11 @@ def insert_price_history(data):
 
 
 # -- Favorites -- #
-def insert_to_portfolio(username: str, add_to_favorites: list):
+def update_portfolio(username: str, set_favorites: list):
     portfolios.update_one(
         { "_id": username },
-        { "$push": { "favorites": { "$each": add_to_favorites}  } },
+        # { "$push": { "favorites": { "$each": add_to_favorites}  } },
+        {"$set": {"favorites": set_favorites}},
         upsert=True
     )
 
@@ -217,10 +218,10 @@ def test_password_hash_2():
     print("is correct ", is_correct)
 
 
-def test_insert_to_portfolio():
+def test_update_portfolio():
     username = "taran50"
-    add_to_favorites = ['example 1', 'example 2']
-    insert_to_portfolio(username, add_to_favorites)
+    add_to_favorites = ['bitcoin', 'ethereum']
+    update_portfolio(username, add_to_favorites)
 
 
 def test_get_user_portfolio():
@@ -236,5 +237,5 @@ if __name__ == "__main__":
     # test_get_user()
     # test_password_hash()
     # test_password_hash_2()
-    # test_insert_to_portfolio()
-    test_get_user_portfolio()
+    test_update_portfolio()
+    # test_get_user_portfolio()
