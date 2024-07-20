@@ -32,6 +32,8 @@ st.title("Login")
         # st.success("Logged out successfully!")
 
 
+# -- User Auth Portion of App -- #
+
 with st.popover("Sign In"):
     with st.form("Signin Form", clear_on_submit=True):
         username = st.text_input("username")
@@ -44,6 +46,8 @@ with st.popover("Sign In"):
             if response.status_code == 200:
                 token = response.json().get("access_token")
                 st.session_state.token = token
+                st.session_state.username = username
+                headers = {"Authorization": f"Bearer {st.session_state.token}"}
                 st.success("Logged in successfully!")
             else:
                 st.error("Login failed")
@@ -77,6 +81,8 @@ with st.popover("Sign Up"):
                     if response.status_code == 200:
                         token = response.json().get("access_token")
                         st.session_state.token = token
+                        st.session_state.username = username
+                        headers = {"Authorization": f"Bearer {st.session_state.token}"}
                         if st.session_state.token:
                             st.success("Logged in successfully!")
                     else:
@@ -96,35 +102,19 @@ if "token" in st.session_state:
                 st.rerun()
 
 
-# -- UNCOMMENT EVERYTHING BELOW WHEN DONE TESTING -- ##
-MOCK_DATA = 'data/MOCK_DATA.json'
-#
-# # Configures the default settings of the page.
-# st.set_page_config(page_title="crypto_api", layout="wide")
-#
-#
-st.title('My Cryptocurrency app')
-#
-#
-#
+# if user is logged in get their favorites portfolio
+if "token" in st.session_state and st.session_state.username:
+    st.write(st.session_state.token)
+    response = requests.get("http://localhost:8000/users/me/favorites",
+                            data={"username": username},
+                            headers = {"Authorization": f"Bearer {st.session_state.token}"})
+    data = response.json()
+    st.write(data)
 
-# # -- User Auth -- #
-#
-#
-#
-#
-#
-#
-# st_name = st.sidebar.text_input("Enter your name", 'John')
-# # st.write(f'Hello {st_name}!')
-#
-# st.write("Hello", st_name, '!')
-#
-# # What path is the app located
-# # app_location = os.getcwd()
-# # st.write("App path: ", app_location)
-#
-#
+# -- Crypto portion of app -- #
+st.title('My Cryptocurrency app')
+
+MOCK_DATA = 'data/MOCK_DATA.json'
 with open(MOCK_DATA, 'r') as file:
     data_dict = json.load(file)
 

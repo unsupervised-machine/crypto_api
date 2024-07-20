@@ -138,6 +138,20 @@ def insert_to_portfolio(username: str, add_to_favorites: list):
     )
 
 
+def get_user_portfolio(username: str):
+    """
+
+    :param username:
+    :return: {'favorites': ['example 1', 'example 2', ... ]}
+    """
+
+    favorites_data = portfolios.find_one(
+        { "_id": username },
+        { "favorites": 1 , "_id": 0}
+    )
+    return favorites_data
+
+
 # -- Refreshing -- #
 def fetch_and_store_current_data():
     """
@@ -209,6 +223,12 @@ def test_insert_to_portfolio():
     insert_to_portfolio(username, add_to_favorites)
 
 
+def test_get_user_portfolio():
+    username = "taran50"
+    print(get_user_portfolio(username))
+
+
+
 if __name__ == "__main__":
     # create_mock_data()
     # insert_mock_user()
@@ -216,5 +236,5 @@ if __name__ == "__main__":
     # test_get_user()
     # test_password_hash()
     # test_password_hash_2()
-    test_insert_to_portfolio()
-
+    # test_insert_to_portfolio()
+    test_get_user_portfolio()

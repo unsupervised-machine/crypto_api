@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, List
 from fastapi import Depends, FastAPI, HTTPException, status, Form
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from pydantic import BaseModel
@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 
-from crypto_api.database import get_user, insert_user
+from crypto_api.database import get_user, insert_user, get_user_portfolio
 
 SECRET_KEY = "123secretkey"
 ALGORITHM = "HS256"
@@ -22,6 +22,12 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 #         "disabled": False,
 #     }
 # }
+
+# -- Response Models -- #
+
+
+class FavoritesResponse(BaseModel):
+    favorites: List[str]
 
 
 class Token(BaseModel):
@@ -185,6 +191,19 @@ async def read_users_me(current_user: User = Depends(get_current_active_user)):
 @app.get("/users/me/items")
 async def read_own_items(current_user: User = Depends(get_current_active_user)):
     return [{"item_id": 1, "owner": current_user}]
+
+
+@app.get("/users/me/favorites")
+async def read_favorites(current_user: User = Depends(get_current_active_user)):
+    """
+    Retrieves the favorites field from the user's portfolio.
+    :param current_user:
+    :return: A list of favorite items. Returns an empty list if the user or the favorites field is not found.
+    """
+    result = get_user_portfolio(current_user.username)
+    if result:
+        return result.get("favorites", [])
+    return []
 
 
 if __name__ == "__main__":
