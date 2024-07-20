@@ -6,7 +6,8 @@ from datetime import datetime, timedelta
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 
-from crypto_api.database import get_user, insert_user, get_user_portfolio, update_portfolio
+from crypto_api.database import (get_user, insert_user, get_user_portfolio, update_portfolio, update_current_only_data,
+                                 get_all_current_only)
 
 SECRET_KEY = "123secretkey"
 ALGORITHM = "HS256"
@@ -188,6 +189,17 @@ async def set_favorites(
         current_user: User = Depends(get_current_active_user),
                         ):
     update_portfolio(username=current_user.username, set_favorites=favorites)
+
+
+@app.post("/crypto/current_only/update_db")
+async def current_only_update_db():
+    update_current_only_data()
+
+
+@app.get("/crypto/current_only/from_db")
+async def current_only_from_db():
+    data = get_all_current_only()
+    return data
 
 
 @app.get("/users/me/", response_model=User)

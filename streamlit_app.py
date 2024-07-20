@@ -107,11 +107,16 @@ if "token" in st.session_state:
 # -- Crypto portion of app -- #
 st.title('My Cryptocurrency app')
 
-MOCK_DATA = 'data/MOCK_DATA.json'
-with open(MOCK_DATA, 'r') as file:
-    data_dict = json.load(file)
 
-df = pd.DataFrame(data_dict)
+# Use Test Data
+# MOCK_DATA = 'data/MOCK_DATA.json'
+# with open(MOCK_DATA, 'r') as file:
+#     data = json.load(file)
+
+# Use Data from DB
+response = requests.get("http://localhost:8000/crypto/current_only/from_db")
+data = response.json()
+df = pd.DataFrame(data)
 
 
 def dict_to_list(d):
@@ -121,10 +126,10 @@ def dict_to_list(d):
     return d['price']
 
 
-# Want to convert the sparklines from dicts to lists
+# Convert the sparklines from dicts to lists
 df['sparkline_in_7d'] = df['sparkline_in_7d'].apply(dict_to_list)
 
-# Add column of false values for favorite checkboxes
+# Default values for favorites
 df.insert(0, 'favorite', False)
 
 # if user is logged in set favorites to match their portfolio
@@ -137,7 +142,7 @@ if "token" in st.session_state and st.session_state.username:
     # st.write(favorites)
     df['favorite'] = df['id'].apply(lambda x: 1 if x in favorites else 0)
 
-# data_dict = data_dict.iloc[:, 1:] # Drop db _id column
+# Columns to display in data_editor
 columns_to_keep = [
     'favorite',
     'market_cap_rank',

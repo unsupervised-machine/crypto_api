@@ -108,9 +108,6 @@ def get_user(username):
     return users.find_one({"username": username})
 
 
-
-
-
 # -- Cryptocurrencies -- #
 
 def insert_cryptocurrency(data):
@@ -123,6 +120,15 @@ def get_cryptocurrency_by_id(crypto_id):
 
 def get_all_cryptocurrencies():
     return cryptocurrencies.find()
+
+
+def get_all_current_only():
+    cursor = current_only.find(
+        {},
+        { "_id": 0},
+    )
+    documents = list(cursor)
+    return documents
 
 
 def insert_price_history(data):
@@ -154,22 +160,26 @@ def get_user_portfolio(username: str):
 
 
 # -- Refreshing -- #
-def fetch_and_store_current_data():
+def update_current_only_data():
     """
     replaces data in current_only collection in database with fresh data
     :return:
     """
+    print("Inside fetch_and_store")
     # Clear collection
+    # print(get_all_records(current_only))
     current_only.delete_many({})
+    # print(get_all_records(current_only))
 
     # Get new data from api
     market_data = cg_client.get_cryptocurrencies(sparkline=True)
-    print(market_data)
+    # print(market_data)
 
     # Insert new data into collection
     current_only.insert_many(market_data)
+    # print(get_all_records(current_only))
 
-# schedule.every(5).minutes.do(fetch_and_store_current_data)
+# schedule.every(5).minutes.do(update_current_only_data)
 
 
 def save_to_file(file_name, data):
@@ -179,9 +189,9 @@ def save_to_file(file_name, data):
 
 # -- Testing -- #
 def create_mock_data():
-    fetch_and_store_current_data()
+    update_current_only_data()
     currencies = get_all_records(current_only)
-    save_to_file("../src/MOCK_DATA.json", currencies)
+    save_to_file("../data/MOCK_DATA_2.json", currencies)
 
 
 def insert_mock_user():
@@ -229,13 +239,14 @@ def test_get_user_portfolio():
     print(get_user_portfolio(username))
 
 
-
 if __name__ == "__main__":
+    print(get_all_current_only())
+    # update_current_only_data()
     # create_mock_data()
     # insert_mock_user()
     # test_get_all_users()
     # test_get_user()
     # test_password_hash()
     # test_password_hash_2()
-    test_update_portfolio()
+    # test_update_portfolio()
     # test_get_user_portfolio()
