@@ -12,28 +12,7 @@ st.set_page_config(page_title="crypto_api", layout="wide")
 st.title("Login")
 
 
-
-
-# if "token" in st.session_state:
-    # st.markdown("### Logged in")
-    #
-    # headers = {"Authorization": f"Bearer {st.session_state.token}"}
-    # response = requests.get("http://localhost:8000/users/me/", headers=headers)
-
-    # if response.status_code == 200:
-    #     data = response.json()
-    #     st.write(data)
-    # else:
-    #     st.error("Unauthorized access")
-    #
-    # if st.sidebar.button("Logout"):
-    #     del st.session_state.token
-    #     st.rerun()
-        # st.success("Logged out successfully!")
-
-
 # -- User Auth Portion of App -- #
-
 with st.popover("Sign In"):
     with st.form("Signin Form", clear_on_submit=True):
         username = st.text_input("username")
@@ -102,18 +81,17 @@ if "token" in st.session_state:
                 st.rerun()
 
 
-
-
 # -- Crypto portion of app -- #
 st.title('My Cryptocurrency app')
-
-
-# Use Test Data
+# Using Test Data
 # MOCK_DATA = 'data/MOCK_DATA.json'
 # with open(MOCK_DATA, 'r') as file:
 #     data = json.load(file)
 
-# Use Data from DB
+# Update DB data
+requests.post("http://localhost:8000/crypto/current_only/update_db")
+
+# Using Data from DB
 response = requests.get("http://localhost:8000/crypto/current_only/from_db")
 data = response.json()
 df = pd.DataFrame(data)
