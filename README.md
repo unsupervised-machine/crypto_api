@@ -14,6 +14,7 @@
 
 - [Features](#features)
 - [Technologies Used](#technologies-used)
+- [Links](#links)
 - [Contact](#contact)
 
 
@@ -35,6 +36,7 @@
 ## Links
 - **Free Cryptocurrency Data**: [CoinGecko API](https://www.coingecko.com/en/api)
 - **Free Hosting Platform**: [Render.com](https://render.com/)
+- **Package Manager**: [Poetry](https://python-poetry.org/)
 
 ## Contact
 
