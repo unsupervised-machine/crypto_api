@@ -5,13 +5,28 @@ from pydantic import BaseModel
 from datetime import datetime, timedelta
 from jose import JWTError, jwt
 from passlib.context import CryptContext
+import os
+
+
 
 from crypto_api.database import (get_user, insert_user, get_user_portfolio, update_portfolio, update_current_only_data,
                                  get_all_current_only)
 
-SECRET_KEY = "123secretkey"
-ALGORITHM = "HS256"
+
+
+from dotenv import load_dotenv
+current_dir = os.path.dirname(__file__)
+dotenv_path = os.path.join(current_dir, 'env', '.env')
+load_dotenv(dotenv_path)
+
+SECRET_KEY = os.getenv('SECRET_KEY')
+ALGORITHM = os.getenv('ALGORITHM')
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
+
+
+# SECRET_KEY = "123secretkey"
+# ALGORITHM = "HS256"
+# ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 # fake_db
 # db = {
