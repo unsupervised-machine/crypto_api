@@ -42,5 +42,5 @@
 
 For any inquiries or questions, please contact:
 
-- Your Name - [taran.s.lau@gmail.com](mailto:taran.s.lau@gmail.com)
+- Taran Lau - [taran.s.lau@gmail.com](mailto:taran.s.lau@gmail.com)
 - GitHub: [@unsupervised-machine](https://github.com/unsupervised-machine)
