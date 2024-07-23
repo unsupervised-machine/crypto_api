@@ -86,7 +86,7 @@ if "token" in st.session_state:
 
 
 # -- Crypto portion of app -- #
-st.title('My Cryptocurrency app')
+st.title('CryptoLive')
 # Using Test Data
 # MOCK_DATA = 'data/MOCK_DATA.json'
 # with open(MOCK_DATA, 'r') as file:
