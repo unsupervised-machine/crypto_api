@@ -69,16 +69,16 @@ with st.popover("Sign Up"):
 
             else:
                 st.error("Registration failed")
-#
-# if "token" in st.session_state:
-#     with st.popover("Log out"):
-#         with st.form("Logout Form"):
-#             submitted = st.form_submit_button("Log out")
-#
-#             if submitted:
-#                 st.success("Logged out successfully!")
-#                 del st.session_state.token
-#                 st.rerun()
+
+if "token" in st.session_state:
+    with st.popover("Log out"):
+        with st.form("Logout Form"):
+            submitted = st.form_submit_button("Log out")
+
+            if submitted:
+                st.success("Logged out successfully!")
+                del st.session_state.token
+                st.rerun()
 #
 #
 # # -- Crypto portion of app -- #
