@@ -1,3 +1,7 @@
+# -- streamlit_app.py -- #
+# This contains functions used by the front end, using Streamlit.
+
+
 import pandas as pd
 import streamlit as st
 # import streamlit_authenticator as st_auth

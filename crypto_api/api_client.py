@@ -1,3 +1,7 @@
+# -- api_client.py -- #
+# This contains functions used to fetch data from coingecko servers.
+
+
 import requests
 from requests.exceptions import HTTPError, ConnectionError, Timeout, RequestException
 from dotenv import load_dotenv

@@ -1,3 +1,6 @@
+# -- database.py -- #
+# This contains functions to interact with the mongodb.
+
 import json
 from datetime import datetime
 from passlib.context import CryptContext
