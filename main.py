@@ -1,3 +1,6 @@
+# -- main.py -- #
+# This is the backend code, using FastAPI.
+
 from typing import Annotated, List
 from fastapi import Depends, FastAPI, HTTPException, status, Form
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
