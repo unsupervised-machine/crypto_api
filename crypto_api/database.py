@@ -19,8 +19,8 @@ dotenv_path = os.path.join(current_dir, '..', 'env', '.env')
 load_dotenv(dotenv_path)
 
 API_KEY = os.getenv('API_KEY')
-MONGO_URI = os.getenv('MONGO_URI')
-DATABASE_NAME = os.getenv('DATABASE_NAME')
+MONGO_URI = os.getenv('ATLAS_URI')
+DATABASE_NAME = os.getenv('ATLAS_DB_NAME')
 
 
 # MongoDB connection
@@ -240,10 +240,10 @@ def test_get_user_portfolio():
 
 
 if __name__ == "__main__":
-    print(get_all_current_only())
+    # print(get_all_current_only())
     # update_current_only_data()
     # create_mock_data()
-    # insert_mock_user()
+    insert_mock_user()
     # test_get_all_users()
     # test_get_user()
     # test_password_hash()

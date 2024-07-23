@@ -8,10 +8,8 @@ from passlib.context import CryptContext
 import os
 
 
-
 from crypto_api.database import (get_user, insert_user, get_user_portfolio, update_portfolio, update_current_only_data,
                                  get_all_current_only)
-
 
 
 from dotenv import load_dotenv
@@ -19,29 +17,20 @@ current_dir = os.path.dirname(__file__)
 dotenv_path = os.path.join(current_dir, 'env', '.env')
 load_dotenv(dotenv_path)
 
+
+# -- DB Connections -- #
+# Cloud db
 SECRET_KEY = os.getenv('SECRET_KEY')
 ALGORITHM = os.getenv('ALGORITHM')
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
-
+# Local db
 # SECRET_KEY = "123secretkey"
 # ALGORITHM = "HS256"
 # ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
-# fake_db
-# db = {
-#     "tim": {
-#         "username": "tim",
-#         "full_name": "Tim Lau",
-#         "email": "Tim@gmail.com",
-#         "hashed_password": "$2b$12$jNs9VEELX9MxVTKXmVvsTuSzrnXAi7EbrQo675SaWBUxqW90grLs6",
-#         "disabled": False,
-#     }
-# }
 
 # -- Response Models -- #
-
-
 class FavoritesResponse(BaseModel):
     favorites: List[str]
 
@@ -71,14 +60,14 @@ class UserInDB(User):
     hashed_password: str
 
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-oath2_scheme = OAuth2PasswordBearer(tokenUrl="token")
-
-
-
 app = FastAPI()
 # to start app run following command in terminal:
 # uvicorn main:app --reload
+
+
+# -- Encryption and User Auth -- #
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+oath2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
 def verify_password(plain_password, hashed_password):
@@ -147,6 +136,7 @@ async def get_current_active_user(current_user: UserInDB = Depends(get_current_u
     return current_user
 
 
+# -- Routes -- #
 @app.post("/token", response_model=Token)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
     user = authenticate_user(form_data.username, form_data.password)
