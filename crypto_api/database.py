@@ -165,20 +165,22 @@ def update_current_only_data():
     replaces data in current_only collection in database with fresh data
     :return:
     """
-    print("Inside fetch_and_store")
-    # Clear collection
-    # print(get_all_records(current_only))
-    current_only.delete_many({})
-    # print(get_all_records(current_only))
+    try:
+        # Get new data from Coingecko
+        market_data = cg_client.get_cryptocurrencies(sparkline=True)
 
-    # Get new data from api
-    market_data = cg_client.get_cryptocurrencies(sparkline=True)
-    # print(market_data)
+        if market_data and len(market_data) > 0:
+            # Clear collection if new data is available
+            current_only.delete_many({})
 
-    # Insert new data into collection
-    current_only.insert_many(market_data)
-    # print(get_all_records(current_only))
+            # Insert new data into collection
+            current_only.insert_many(market_data)
+            print("Data successfully updated.")
+        else:
+            print("No data fetched. Collection was not updated.")
 
+    except Exception as e:
+        print(f"An error occurred: {e}")
 # schedule.every(5).minutes.do(update_current_only_data)
 
 
