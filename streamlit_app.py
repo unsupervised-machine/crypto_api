@@ -13,25 +13,25 @@ st.title("Login")
 
 
 # -- User Auth Portion of App -- #
-# with st.popover("Sign In"):
-#     with st.form("Signin Form", clear_on_submit=True):
-#         username = st.text_input("username")
-#         plain_password = st.text_input("Password")
-#         submitted = st.form_submit_button("Submit")
-#
-#         response = requests.post("http://localhost:8000/token", data={"username": username, "password": plain_password})
-#
-#         if submitted:
-#             if response.status_code == 200:
-#                 token = response.json().get("access_token")
-#                 st.session_state.token = token
-#                 st.session_state.username = username
-#                 headers = {"Authorization": f"Bearer {st.session_state.token}"}
-#                 st.success("Logged in successfully!")
-#             else:
-#                 st.error("Login failed")
-#
-#
+with st.popover("Sign In"):
+    with st.form("Signin Form", clear_on_submit=True):
+        username = st.text_input("username")
+        plain_password = st.text_input("Password")
+        submitted = st.form_submit_button("Submit")
+
+        response = requests.post("http://localhost:8000/token", data={"username": username, "password": plain_password})
+
+        if submitted:
+            if response.status_code == 200:
+                token = response.json().get("access_token")
+                st.session_state.token = token
+                st.session_state.username = username
+                headers = {"Authorization": f"Bearer {st.session_state.token}"}
+                st.success("Logged in successfully!")
+            else:
+                st.error("Login failed")
+
+
 # with st.popover("Sign Up"):
 #     with st.form("Signup Form", clear_on_submit=True):
 #         email = st.text_input("Email")
